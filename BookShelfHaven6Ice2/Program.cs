@@ -6,7 +6,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddDbContext<BookShelfHavenContext>(opt =>
-    opt.UseInMemoryDatabase("TodoList"));
+    opt.UseInMemoryDatabase("BookShelfHaven"));
+builder.Services.AddDbContext<BookShelfHavenContext>(options =>
+                options.UseSqlServer(Environment.GetEnvironmentVariable("BookShelfHaven")));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

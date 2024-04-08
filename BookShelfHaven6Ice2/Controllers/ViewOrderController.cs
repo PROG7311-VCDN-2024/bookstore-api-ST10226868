@@ -10,28 +10,30 @@ namespace BookShelfHaven5.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class CheckoutController : ControllerBase
+    public class ViewOrdersController : ControllerBase
     {
         private readonly BookShelfHavenContext _context;
 
-        public CheckoutController(BookShelfHavenContext context)
+        public ViewOrdersController(BookShelfHavenContext context)
         {
             _context = context;
         }
 
-        // GET: api/Checkout
+        // GET: api/ViewOrders
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Cart>>> GetCarts()
+        public async Task<ActionResult<IEnumerable<Cart>>> GetCarts([FromQuery] string Order)
         {
-            var carts = await _context.Carts
-                .Include(c => c.Product)
-                .Include(c => c.UsernameNavigation)
-                .ToListAsync();
+            IQueryable<Cart> carts = _context.Carts.Include(c => c.Product).Include(c => c.UsernameNavigation);
 
-            return carts;
+            if (!string.IsNullOrEmpty(Order))
+            {
+                carts = carts.Where(p => p.Username.Contains(Order));
+            }
+
+            return await carts.ToListAsync();
         }
 
-        // GET: api/Checkout/5
+        // GET: api/ViewOrders/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Cart>> GetCart(int id)
         {
@@ -48,23 +50,24 @@ namespace BookShelfHaven5.Controllers
             return cart;
         }
 
-        // POST: api/Checkout
+        // POST: api/ViewOrders
         [HttpPost]
-        public async Task<ActionResult<Cart>> CreateCart(Cart cart)
+        public async Task<ActionResult<Cart>> PostCart(Cart cart)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _context.Carts.Add(cart);
-                await _context.SaveChangesAsync();
-                return CreatedAtAction(nameof(GetCart), new { id = cart.CartId }, cart);
+                return BadRequest(ModelState);
             }
 
-            return BadRequest(ModelState);
+            _context.Carts.Add(cart);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetCart), new { id = cart.CartId }, cart);
         }
 
-        // PUT: api/Checkout/5
+        // PUT: api/ViewOrders/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCart(int id, Cart cart)
+        public async Task<IActionResult> PutCart(int id, Cart cart)
         {
             if (id != cart.CartId)
             {
@@ -92,7 +95,7 @@ namespace BookShelfHaven5.Controllers
             return NoContent();
         }
 
-        // DELETE: api/Checkout/5
+        // DELETE: api/ViewOrders/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCart(int id)
         {
