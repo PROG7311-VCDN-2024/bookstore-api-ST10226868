@@ -1,0 +1,6 @@
+@BookShelfHaven6Ice2_HostAddress = http://localhost:5138
+
+GET {{BookShelfHaven6Ice2_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
